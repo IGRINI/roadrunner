@@ -21,6 +21,7 @@
 package http
 
 import (
+
 	"github.com/spf13/cobra"
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 	"github.com/spiral/roadrunner/cmd/util"
@@ -44,7 +45,7 @@ func reloadHandler(cmd *cobra.Command, args []string) error {
 	util.Printf("<green>Restarting http worker pool</reset>: ")
 
 	var r string
-	if err := client.Call("http.Reset", true, &r); err != nil {
+	if err := client.Call("http.Reset", rr.CLI.Aliases, &r); err != nil {
 		return err
 	}
 

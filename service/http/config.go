@@ -3,11 +3,12 @@ package http
 import (
 	"errors"
 	"fmt"
-	"github.com/spiral/roadrunner"
-	"github.com/spiral/roadrunner/service"
 	"net"
 	"os"
 	"strings"
+
+	"github.com/spiral/roadrunner"
+	"github.com/spiral/roadrunner/service"
 )
 
 // Config configures RoadRunner HTTP server.
@@ -36,6 +37,9 @@ type Config struct {
 
 	// Workers configures rr server and worker pool.
 	Workers *roadrunner.ServerConfig
+
+	IsSymlink bool
+	AbsPath   string
 }
 
 // FCGIConfig for FastCGI server.

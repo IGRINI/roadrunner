@@ -3,16 +3,19 @@ package util
 import (
 	"bytes"
 	"fmt"
-	"github.com/spf13/viper"
-	"github.com/spiral/roadrunner/service"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/viper"
+	"github.com/spiral/roadrunner/service"
 )
 
 // ConfigWrapper provides interface bridge between v configs and service.Config.
 type ConfigWrapper struct {
-	v *viper.Viper
+	v         *viper.Viper
+	IsSymlink bool
+	AbsPath   string
 }
 
 // Get nested config section (sub-map), returns nil if section not found.
@@ -22,7 +25,7 @@ func (w *ConfigWrapper) Get(key string) service.Config {
 		return nil
 	}
 
-	return &ConfigWrapper{sub}
+	return &ConfigWrapper{sub, w.IsSymlink, w.AbsPath}
 }
 
 // Unmarshal unmarshal config data into given struct.
@@ -33,10 +36,20 @@ func (w *ConfigWrapper) Unmarshal(out interface{}) error {
 // LoadConfig config and merge it's values with set of flags.
 func LoadConfig(cfgFile string, path []string, name string, flags []string, jsonConfig string) (*ConfigWrapper, error) {
 	cfg := viper.New()
+	wrapper := &ConfigWrapper{
+		v:         nil,
+		IsSymlink: false,
+		AbsPath:   "",
+	}
 
 	if cfgFile != "" {
 		if absPath, err := filepath.Abs(cfgFile); err == nil {
 			cfgFile = absPath
+
+			if IsSymlink(absPath) == true {
+				wrapper.AbsPath = absPath
+				wrapper.IsSymlink = true
+			}
 
 			// force working absPath related to config file
 			if err := os.Chdir(filepath.Dir(absPath)); err != nil {
@@ -141,7 +154,21 @@ func LoadConfig(cfgFile string, path []string, name string, flags []string, json
 		return nil, err
 	}
 
-	return &ConfigWrapper{merged}, nil
+	wrapper.v = merged
+
+	return wrapper, nil
+}
+
+func IsSymlink(path string) bool {
+	fi, err := os.Lstat(path)
+	if err != nil {
+		panic(err)
+	}
+	// check the symlink bit in the filemode
+	if (fi.Mode() & os.ModeSymlink) != 0 { // only 1 & 1 will be 1, otherwise 0
+		return true
+	}
+	return false
 }
 
 func parseFlag(flag string) (string, string, error) {

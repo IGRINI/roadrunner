@@ -56,6 +56,8 @@ type Service struct {
 	http  *http.Server
 	https *http.Server
 	fcgi  *http.Server
+
+	runArgs []string
 }
 
 // Attach attaches controller. Currently only one controller is supported.

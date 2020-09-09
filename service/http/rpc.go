@@ -14,11 +14,13 @@ type WorkerList struct {
 }
 
 // Reset resets underlying RR worker pool and restarts all of it's workers.
-func (rpc *rpcServer) Reset(reset bool, r *string) error {
+func (rpc *rpcServer) Reset(args []string, r *string) error {
 	if rpc.svc == nil || rpc.svc.handler == nil {
 		return errors.New("http server is not running")
 	}
 
+	// run args set
+	rpc.svc.runArgs = args
 	*r = "OK"
 	return rpc.svc.Server().Reset()
 }

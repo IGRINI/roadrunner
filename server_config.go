@@ -43,6 +43,8 @@ type ServerConfig struct {
 	// values defines set of values to be passed to the command context.
 	mu  sync.Mutex
 	env map[string]string
+
+	RunArgs []string
 }
 
 // InitDefaults sets missing values to their default values.

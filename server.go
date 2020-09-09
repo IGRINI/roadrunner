@@ -2,8 +2,9 @@ package roadrunner
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"sync"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -54,6 +55,8 @@ type Server struct {
 	// observes pool events (can be attached to multiple pools at the same time)
 	mul sync.Mutex
 	lsn func(event int, ctx interface{})
+
+	RunArgs []string
 }
 
 // NewServer creates new router. Make sure to call configure before the usage.
@@ -149,6 +152,8 @@ func (s *Server) Reconfigure(cfg *ServerConfig) error {
 	s.mup.Lock()
 	defer s.mup.Unlock()
 
+	//if os.Lstat(s.cfg.)
+
 	s.mu.Lock()
 	if !s.started {
 		s.cfg = cfg
@@ -202,6 +207,7 @@ func (s *Server) Reconfigure(cfg *ServerConfig) error {
 func (s *Server) Reset() error {
 	s.mu.Lock()
 	cfg := s.cfg
+	cfg.RunArgs = s.RunArgs
 	s.mu.Unlock()
 
 	return s.Reconfigure(cfg)
